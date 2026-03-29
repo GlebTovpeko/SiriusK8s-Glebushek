@@ -1,4 +1,5 @@
 ### Блок 1
+
 создали три файла через nano — app.py, requirements.txt и Dockerfile. собрали образ myapp:bad — docker скачал python:3.12, прогнал 4 шага (FROM, WORKDIR, COPY, RUN pip install), всё собралось.
 
 docker images показывает размер — 1.62GB disk usage, 416MB content size. это и есть "плохой" образ — базовый python:3.12 тянет за собой полный debian со всеми инструментами, компиляторами и прочим мусором который для запуска flask вообще не нужен.
@@ -11,12 +12,14 @@ docker images показывает размер — 1.62GB disk usage, 416MB con
 ![йо тут картина 1](image.png)
 
 ### Блок 2
+
 всё заработало. docker stats показывает app-good живёт, жрёт 0.02% cpu и 22.3MB из выделенных 128MB памяти, лимиты применились.
 
 docker images показывает разницу — myapp:bad весит 1.62GB, myapp:good всего 96.7MB, то есть образ уменьшился примерно в 17 раз за счёт multistage build и alpine базы
 ![йо тут картина дос](image-1.png)
 
 ### Блок 3
+
 docker history показывает слои обоих образов.
 
 у myapp:good видно всю цепочку — снизу вверх: alpine базовый образ (10MB), потом системные слои python, потом наши: COPY site-packages (16.7MB — это flask и зависимости), COPY app.py (4.1kB), ENV, adduser (24kB), EXPOSE, CMD. всё чистенько и компактно.
